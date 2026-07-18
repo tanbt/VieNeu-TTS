@@ -2,18 +2,16 @@
 # Serves the Gradio web UI (v3 Turbo model, CPU via ONNX Runtime).
 #
 # Usage:
-#   docker compose up --build     # build locally, then run
-#   docker compose pull && docker compose up -d   # run the online image from Docker Hub
+#   docker compose up --build
 # then open http://localhost:7860
 #
-# Published image: docker.io/tanbui/vieneu-tts:cpu
 # For NVIDIA GPU machines, use the files under ./docker/ instead.
 services:
   vieneu-web:
     build:
       context: .
       dockerfile: docker/Dockerfile.cpu
-    image: tanbui/vieneu-tts:cpu
+    image: vieneu-tts:cpu
     container_name: vieneu-tts-web
     ports:
       - "${PORT:-7860}:7860"
