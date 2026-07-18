@@ -1,0 +1,32 @@
+# CPU Docker setup for running VieNeu-TTS locally (macOS / Linux, no NVIDIA GPU).
+# Serves the Gradio web UI (v3 Turbo model, CPU via ONNX Runtime).
+#
+# Usage:
+#   docker compose up --build
+# then open http://localhost:7860
+#
+# For NVIDIA GPU machines, use the files under ./docker/ instead.
+services:
+  vieneu-web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    image: vieneu-tts:cpu
+    container_name: vieneu-tts-web
+    ports:
+      - "${PORT:-7860}:7860"
+    environment:
+      - GRADIO_SERVER_NAME=0.0.0.0
+      - GRADIO_SERVER_PORT=7860
+      - GRADIO_SHARE=${GRADIO_SHARE:-0}
+      - HF_HOME=/root/.cache/huggingface
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Persist downloaded HuggingFace models between runs.
+      - huggingface_cache:/root/.cache/huggingface
+      # Expose generated audio on the host.
+      - ./output_audio:/workspace/output_audio
+    restart: unless-stopped
+
+volumes:
+  huggingface_cache:

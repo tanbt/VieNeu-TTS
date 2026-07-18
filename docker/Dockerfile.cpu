@@ -1,0 +1,45 @@
+# CPU image for VieNeu-TTS (works natively on Apple Silicon / arm64 and amd64).
+# Runs the torch-free core: VieNeu-TTS v3 Turbo on CPU via ONNX Runtime.
+FROM python:3.12-slim AS base
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    HF_HOME=/root/.cache/huggingface \
+    GRADIO_SERVER_NAME=0.0.0.0 \
+    GRADIO_SERVER_PORT=7860 \
+    GRADIO_SHARE=0
+
+# System deps: audio I/O (libsndfile), phonemizer fallback (espeak-ng),
+# and build tools for any source-only wheels.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    espeak-ng \
+    libespeak-ng1 \
+    libsndfile1 \
+    git \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Copy project metadata + source needed for an editable install.
+COPY pyproject.toml README_PYPI.md LICENSE config.yaml ./
+COPY src/ ./src/
+COPY apps/ ./apps/
+COPY examples/ ./examples/
+
+# Install the torch-free CPU core. Editable install keeps __file__ inside
+# /workspace so apps/gradio_main.py can locate config.yaml at runtime.
+# Pin gradio to 5.x: the UI uses the Gradio 5 API (show_copy_button, Blocks
+# theme/css) which was removed/changed in Gradio 6.
+RUN pip install --upgrade pip && pip install -e . "gradio>=5.49.1,<6"
+
+# Voice Cloning needs PyTorch. Install CPU-only wheels (no CUDA) to keep the
+# image small — the container has no GPU anyway.
+RUN pip install --index-url https://download.pytorch.org/whl/cpu \
+    torch torchvision torchaudio
+
+EXPOSE 7860
+
+# vieneu-web = apps.gradio_main:main (defined in pyproject [project.scripts]).
+CMD ["vieneu-web"]
