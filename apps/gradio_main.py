@@ -2118,6 +2118,7 @@ with gr.Blocks(theme=theme, css=css, title="VieNeu-TTS", head=head_html) as demo
                                 [os.path.join(_ref_dir, "example_2.wav"), "Trên thực tế, các nghi ngờ đã bắt đầu xuất hiện."],
                                 [os.path.join(_ref_dir, "example_3.wav"), "Cậu có nhìn thấy không?"],
                                 [os.path.join(_ref_dir, "example_4.wav"), "Tết là dịp mọi người háo hức đón chào một năm mới với nhiều hy vọng và mong ước."],
+                                [os.path.join(_ref_dir, "example_5.wav"), "Đống lửa bị thổi cho nghiêng ngả. Có mấy người đã ôm chặt đầu gối, vùi mặt vào trong cổ áo."]
                             ]
                             with gr.Group(visible=_default_is_v2_gpu) as v2_ref_text_group:
                                 custom_text = gr.Textbox(label="Nội dung audio mẫu - vui lòng gõ đúng nội dung của audio mẫu - kể cả dấu câu vì model rất nhạy cảm với dấu câu (.,?!)")
